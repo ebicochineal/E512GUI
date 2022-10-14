@@ -54,21 +54,7 @@ public class E512GUIRoot : MonoBehaviour {
         return ret;
     }
     
-    public E512GUI MouseClick () {
-        E512GUI hitui = null;
-        if (this.hide) { return hitui; }
-        Vector3 m = this.MousePos();
-        if (m.z > -1) {
-            for (int i = 0; i < this.transform.childCount; ++i) {
-                E512GUI u = this.transform.GetChild(i).GetComponent<E512GUI>();
-                if (u != null && !u.hide) { u.Test(m, ref hitui); }
-            }
-        }
-        
-        return hitui;
-    }
-    
-    public E512GUI MouseOver () {
+    public E512GUI HitGUI () {
         E512GUI hitui = null;
         if (this.hide) { return hitui; }
         Vector3 m = this.MousePos();

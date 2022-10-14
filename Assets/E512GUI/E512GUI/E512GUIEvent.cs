@@ -11,31 +11,35 @@ public class E512GUIEvent : MonoBehaviour {
     E512GUI drag = null;
     E512GUI down = null;
     int index = -1;
-    
+    public bool hit = false;
     void Update () {
+        
         if (Input.GetMouseButtonUp(0) || !Input.GetMouseButton(0)) {
             if (this.drag != null) { this.drag.mousedrag = false; }
             this.drag = null;
             this.index = -1;
         }
         
-        this.MouseOver();
-        
         E512GUI hitui = null;
         int hitindex = -1;
         for (int i = 0; i < this.guis.Count; i++) {
-            E512GUI u = this.guis[i].MouseClick();
+            E512GUI u = this.guis[i].HitGUI();
             if (u != null) {
                 hitui = u;
                 hitindex = i;
             }
         }
         
+        if (hitui != null) { hitui.mouseover = true; }
+        this.hit = hitui != null;
+        
         
         Vector3 hitm = new Vector3();
         if (Input.GetMouseButtonDown(0) && hitui != null) { this.index = hitindex; }
         if (this.index >= this.guis.Count) { this.index = -1; }
         if (this.index >= 0) { hitm = this.guis[this.index].MousePos(); }
+        
+        
         
         if (hitui != null) {
             Transform t = hitui.transform;
@@ -74,14 +78,5 @@ public class E512GUIEvent : MonoBehaviour {
             this.drag.py = this.tmpy + (int)d.y;
             this.drag.ModifyToParentClipArea();
         }
-    }
-    
-    void MouseOver () {
-        E512GUI hitui = null;
-        foreach (var i in this.guis) {
-            E512GUI u = i.MouseOver();
-            if (u != null) { hitui = u; }
-        }
-        if (hitui != null) { hitui.mouseover = true; }
     }
 }
