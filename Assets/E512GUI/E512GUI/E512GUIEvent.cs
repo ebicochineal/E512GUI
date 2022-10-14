@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class E512GUIEvent : MonoBehaviour {
-    
-    
     public List<E512GUIRoot> guis = new List<E512GUIRoot>();
     
     Vector3 prev;
     int tmpx = 0;
     int tmpy = 0;
     E512GUI drag = null;
+    E512GUI down = null;
     int index = -1;
     
     void Update () {
@@ -20,28 +19,22 @@ public class E512GUIEvent : MonoBehaviour {
             this.index = -1;
         }
         
+        this.MouseOver();
+        
         E512GUI hitui = null;
-        foreach (var i in this.guis) {
-            E512GUI u = i.MouseOver();
-            if (u != null) { hitui = u; }
-        }
-        if (hitui != null) { hitui.mouseover = true; }
-        
-        hitui = null;
-        
-        Vector3 hitm = new Vector3();
         int hitindex = -1;
-        if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0)) {
-            for (int i = 0; i < this.guis.Count; i++) {
-                E512GUI u = this.guis[i].MouseClick();
-                if (u != null) {
-                    hitui = u;
-                    hitindex = i;
-                }
+        for (int i = 0; i < this.guis.Count; i++) {
+            E512GUI u = this.guis[i].MouseClick();
+            if (u != null) {
+                hitui = u;
+                hitindex = i;
             }
         }
         
+        
+        Vector3 hitm = new Vector3();
         if (Input.GetMouseButtonDown(0) && hitui != null) { this.index = hitindex; }
+        if (this.index >= this.guis.Count) { this.index = -1; }
         if (this.index >= 0) { hitm = this.guis[this.index].MousePos(); }
         
         if (hitui != null) {
@@ -55,16 +48,18 @@ public class E512GUIEvent : MonoBehaviour {
                 t = t.parent;
             }
             
-            if (hitui.onclick != null && Input.GetMouseButtonUp(0)) { hitui.onclick.Invoke(); }
+            if (Input.GetMouseButtonDown(0)) { this.down = hitui; }
+            if (hitui.onclick != null && Input.GetMouseButtonUp(0) && hitui == this.down) { hitui.onclick.Invoke(); }
+            if (Input.GetMouseButtonUp(0)) { this.down = null; }
             
-            
-            while (hitui != null && hitui.move == false) {
-                hitui = hitui.transform.parent.GetComponent<E512GUI>();
+            E512GUI canmoveui = hitui;
+            while (canmoveui != null && canmoveui.move == false) {
+                canmoveui = canmoveui.transform.parent.GetComponent<E512GUI>();
             }
             
             // drag start
-            if (Input.GetMouseButtonDown(0) && hitui != null) {
-                this.drag = hitui;
+            if (Input.GetMouseButtonDown(0) && canmoveui != null) {
+                this.drag = canmoveui;
                 this.prev = hitm;
                 this.tmpx = this.drag.px;
                 this.tmpy = this.drag.py;
@@ -79,7 +74,14 @@ public class E512GUIEvent : MonoBehaviour {
             this.drag.py = this.tmpy + (int)d.y;
             this.drag.ModifyToParentClipArea();
         }
-        
     }
     
+    void MouseOver () {
+        E512GUI hitui = null;
+        foreach (var i in this.guis) {
+            E512GUI u = i.MouseOver();
+            if (u != null) { hitui = u; }
+        }
+        if (hitui != null) { hitui.mouseover = true; }
+    }
 }
