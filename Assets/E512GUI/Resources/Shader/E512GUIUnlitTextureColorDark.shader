@@ -1,4 +1,4 @@
-﻿Shader "E512GUI/UnlitTextureHexT" {
+﻿Shader "E512GUI/UnlitTextureColorDark" {
     Properties {
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1, 1, 1, 1)
@@ -15,8 +15,11 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 3.0
+            // make fog work
+            // #pragma multi_compile_fog
             
             #include "UnityCG.cginc"
+
             struct appdata {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
@@ -24,6 +27,7 @@
 
             struct v2fo {
                 float2 uv : TEXCOORD0;
+                // UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
             struct v2fi {
@@ -36,36 +40,20 @@
             fixed4 _Color;
             fixed _Alpha;
             
+            
             float _WL;
             float _WU;
             float _WR;
             float _WD;
             int _Clip;
-            float _MX;
-            float _MY;
-            
+            float _MX;// cursor
+            float _MY;// cursor
             
             v2fo vert (appdata v) {
                 v2fo o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
-            }
-            
-            float rand (float2 co) { return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453); }
-            
-            float2 hex (float2 uv, float scale) {
-                uv *= scale;
-                float3 col = float3(0, 0, 0);
-                float2 r = normalize(float2(1.0, 1.73));
-                float2 h = r * 0.5;
-                float2 a = fmod(uv, r) - h;
-                float2 b = fmod(uv - h, r) - h;
-                float2 gv = length(a) < length(b) ? a : b;
-                float2 id = uv - gv;
-                // col.rg = id * 0.2;
-                col.rg = id / scale;
-                return col.rg;
             }
             
             fixed4 frag (v2fi i) : SV_Target {
@@ -83,29 +71,12 @@
                 }
                 
                 fixed4 col = tex2D(_MainTex, i.uv);
-                
-                float x = i.vpos.x;
-                float y = i.vpos.y;
-                x *= _ScreenParams.x / _ScreenParams.y;
-                
-                if (col.r == 1 && col.g == 1 && col.b == 1) {
-                    float2 u = hex(float2(x, y), 32);
-                    col.rgb = _Color;
-                    if (col.a > 0) {
-                        float a = sin(rand(u - 1000) * 32 + _Time.x * 32) * 0.5 + 0.5;
-                        a *= (i.vpos.y - _WU) / (_WD-_WU);
-                        float2 mu = hex(float2(_MX / _ScreenParams.x * (_ScreenParams.x/_ScreenParams.y), _MY/_ScreenParams.y), 32);
-                        float d = distance(mu, u);
-                        float b = d < 0.2 ? 1-d*2 : 0.6;
-                        col.rgb *= min(a*b+(b-0.5), 1);
-                        col.a = min(a*b+(b-0.5), 1);
-                    }
-                } else {
-                    col.rgb = fixed3(1, 1, 1) * _Color.r;
-                }
+                if (col.a < 0.1) { discard; }
+                col.rgb *= _Color.rgb;
+                col.rgb *= ((_WD - i.vpos.y) / (_WD-_WU)) * 0.5 + 0.5;
+                col.a = _Alpha;
                 return col;
             }
-            
             ENDCG
         }
     }

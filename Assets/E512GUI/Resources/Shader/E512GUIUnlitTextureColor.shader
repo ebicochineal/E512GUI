@@ -57,13 +57,13 @@
             }
             
             fixed4 frag (v2fi i) : SV_Target {
+                i.vpos.xy /= _ScreenParams.xy;
+                #if UNITY_UV_STARTS_AT_TOP
+                    if (_ProjectionParams.x < 0) { i.vpos.y = 1.0-i.vpos.y; }
+                #else
+                    i.vpos.y = 1.0-i.vpos.y;
+                #endif
                 if (_Clip > 0) {
-                    i.vpos.xy /= _ScreenParams.xy;
-                    #if UNITY_UV_STARTS_AT_TOP
-                        if (_ProjectionParams.x < 0) { i.vpos.y = 1.0-i.vpos.y; }
-                    #else
-                        i.vpos.y = 1.0-i.vpos.y;
-                    #endif
                     if (i.vpos.x < _WL) { discard; }
                     if (i.vpos.x >= _WR) { discard; }
                     if (i.vpos.y < _WU) { discard; }
