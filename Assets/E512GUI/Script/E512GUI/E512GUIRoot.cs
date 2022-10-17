@@ -72,6 +72,23 @@ public class E512GUIRoot : MonoBehaviour {
         return hitui;
     }
     
+    public E512GUI HitGUI (E512GUI ignore) {
+        E512GUI hitui = null;
+        if (this.hide) { return hitui; }
+        Vector3 m = this.MousePos();
+        foreach (var u in this.GetComponentsInChildren<E512GUI>()) {
+            if (!u.hide) { u.mouseover = false; }
+        }
+        if (m.z > -1) {
+            for (int i = 0; i < this.transform.childCount; ++i) {
+                Transform t = this.transform.GetChild(i);
+                if (t == null) { continue; }
+                E512GUI u = t.GetComponent<E512GUI>();
+                if (u != null && !u.hide) { u.Test(m, ignore, ref hitui); }
+            }
+        }
+        return hitui;
+    }
     
     void OnRenderObject () { this.DrawUI(); }
     void OnDrawGizmos () { this.DrawUI(); }

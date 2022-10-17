@@ -17,6 +17,8 @@ public class E512GUI : MonoBehaviour {
     
     public int px = 0;
     public int py = 0;
+    [HideInInspector] public int apx = 0;
+    [HideInInspector] public int apy = 0;
     
     [Range(0, 64)] public int margin = 6;
     
@@ -46,17 +48,10 @@ public class E512GUI : MonoBehaviour {
     private int wdi = 0;
     
     public void DrawUI (int sw, int sh, float mx, float my) {
-        int px = this.px;
-        int py = this.py;
-        Transform p = this.transform.parent;
-        while (p != null) {
-            E512GUI t = p.GetComponent<E512GUI>();
-            if (t != null) {
-                px += t.margin + t.px;
-                py += t.margin + t.py;
-            }
-            p = p.parent;
-        }
+        this.AbsolutePosition();
+        int px = this.apx;
+        int py = this.apy;
+        
         this.wlo = px;
         this.wro = px + this.window.width;
         this.wuo = py;
@@ -73,7 +68,7 @@ public class E512GUI : MonoBehaviour {
             this.wri = this.wro - this.margin;
             this.wdi = this.wdo - this.margin;
             
-            p = this.transform.parent;
+            Transform p = this.transform.parent;
             if (p != null) {
                 E512GUI t = p.GetComponent<E512GUI>();
                 if (t != null) {
@@ -108,17 +103,10 @@ public class E512GUI : MonoBehaviour {
     }
     
     public void Test (Vector3 m, ref E512GUI hitui) {
-        int px = this.px;
-        int py = this.py;
-        Transform p = this.transform.parent;
-        while (p != null) {
-            E512GUI t = p.GetComponent<E512GUI>();
-            if (t != null) {
-                px += t.margin + t.px;
-                py += t.margin + t.py;
-            }
-            p = p.parent;
-        }
+        this.AbsolutePosition();
+        int px = this.apx;
+        int py = this.apy;
+        
         this.wlo = px;
         this.wro = px + this.window.width;
         this.wuo = py;
@@ -135,7 +123,7 @@ public class E512GUI : MonoBehaviour {
             this.wri = this.wro - this.margin;
             this.wdi = this.wdo - this.margin;
             
-            p = this.transform.parent;
+            Transform p = this.transform.parent;
             if (p != null) {
                 E512GUI t = p.GetComponent<E512GUI>();
                 if (t != null) {
@@ -163,18 +151,11 @@ public class E512GUI : MonoBehaviour {
         }
     }
     
-    public void ImagePosition (int sw, int sh, float mx, float my, ref Vector3 uv) {
-        int px = this.px;
-        int py = this.py;
-        Transform p = this.transform.parent;
-        while (p != null) {
-            E512GUI t = p.GetComponent<E512GUI>();
-            if (t != null) {
-                px += t.margin + t.px;
-                py += t.margin + t.py;
-            }
-            p = p.parent;
-        }
+    public void Test (Vector3 m, E512GUI ignore, ref E512GUI hitui) {
+        this.AbsolutePosition();
+        int px = this.apx;
+        int py = this.apy;
+        
         this.wlo = px;
         this.wro = px + this.window.width;
         this.wuo = py;
@@ -191,7 +172,56 @@ public class E512GUI : MonoBehaviour {
             this.wri = this.wro - this.margin;
             this.wdi = this.wdo - this.margin;
             
-            p = this.transform.parent;
+            Transform p = this.transform.parent;
+            if (p != null) {
+                E512GUI t = p.GetComponent<E512GUI>();
+                if (t != null) {
+                    this.wlo = Mathf.Max(this.wlo, t.wli);
+                    this.wuo = Mathf.Max(this.wuo, t.wui);
+                    this.wro = Mathf.Min(this.wro, t.wri);
+                    this.wdo = Mathf.Min(this.wdo, t.wdi);
+                    this.wli = Mathf.Max(this.wli, t.wli);
+                    this.wui = Mathf.Max(this.wui, t.wui);
+                    this.wri = Mathf.Min(this.wri, t.wri);
+                    this.wdi = Mathf.Min(this.wdi, t.wdi);
+                }
+            }
+        }
+        
+        px += this.margin;
+        py += this.margin;
+        
+        if (this != ignore && this.collision && m.x >= this.wlo && m.x < this.wro && m.y >= this.wuo && m.y < this.wdo) { hitui = this; }
+        for (int i = 0; i < this.transform.childCount; ++i) {
+            Transform t = this.transform.GetChild(i);
+            if (t == null) { continue; }
+            E512GUI u = t.GetComponent<E512GUI>();
+            if (u != null && !u.hide) { u.Test(m, ignore, ref hitui); }
+        }
+    }
+    
+    public void ImagePosition (int sw, int sh, float mx, float my, ref Vector3 uv) {
+        this.AbsolutePosition();
+        int px = this.apx;
+        int py = this.apy;
+        
+        this.wlo = px;
+        this.wro = px + this.window.width;
+        this.wuo = py;
+        this.wdo = py + this.window.height;
+        
+        this.wli = this.wlo + this.margin;
+        this.wui = this.wuo + this.margin;
+        this.wri = this.wro - this.margin;
+        this.wdi = this.wdo - this.margin;
+        
+        if (this.clip == E512GUI.ClipType.ParentAreaClip) {
+            this.wli = this.wlo + this.margin;
+            this.wui = this.wuo + this.margin;
+            this.wri = this.wro - this.margin;
+            this.wdi = this.wdo - this.margin;
+            
+            Transform p = this.transform.parent;
             if (p != null) {
                 E512GUI t = p.GetComponent<E512GUI>();
                 if (t != null) {
@@ -473,4 +503,29 @@ public class E512GUI : MonoBehaviour {
             if (py+this.window.height > parentui.wdi) { this.py += parentui.wdi - py - this.window.height; }
         }
     }
+    
+    public E512GUIRoot Root () {
+        Transform p = this.transform.parent;
+        while (p != null) {
+            E512GUIRoot r = p.GetComponent<E512GUIRoot>();
+            if (r != null) { return r; }
+            p = p.parent;
+        }
+        return null;
+    }
+    
+    public void AbsolutePosition () {
+        this.apx = this.px;
+        this.apy = this.py;
+        Transform p = this.transform.parent;
+        while (p != null) {
+            E512GUI t = p.GetComponent<E512GUI>();
+            if (t != null) {
+                this.apx += t.margin + t.px;
+                this.apy += t.margin + t.py;
+            }
+            p = p.parent;
+        }
+    }
+    
 }
