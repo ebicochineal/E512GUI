@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChildAlignment : MonoBehaviour {
+public class DropField : MonoBehaviour {
     E512GUI gui;
-    
+    int cnt = 0;
     void Start () {
         this.gui = this.GetComponent<E512GUI>();
-        this.Alignment();
+    }
+    
+    void Update () {
+        if (this.transform.childCount != this.cnt) {
+            this.Alignment();
+        }
+        this.cnt = this.transform.childCount;
     }
     
     public void Alignment () {
@@ -16,7 +22,7 @@ public class ChildAlignment : MonoBehaviour {
             l.Add(this.transform.GetChild(i).GetComponent<E512GUI>());
         }
         int px = 0;
-        int py = 12;
+        int py = 0;
         
         int w = this.gui.window.width - this.gui.margin * 2;
         int h = this.gui.window.height - this.gui.margin * 2;
@@ -30,7 +36,6 @@ public class ChildAlignment : MonoBehaviour {
             i.px = px;
             i.py = py;
             px += i.window.width;
-            
         }
     }
 }

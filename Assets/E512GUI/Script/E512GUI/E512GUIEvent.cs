@@ -6,8 +6,8 @@ public class E512GUIEvent : MonoBehaviour {
     public List<E512GUIRoot> guis = new List<E512GUIRoot>();
     
     Vector3 prev;
-    int tmpx = 0;
-    int tmpy = 0;
+    [HideInInspector] public int tmpx = 0;
+    [HideInInspector] public int tmpy = 0;
     E512GUI drag = null;
     E512GUI down = null;
     int index = -1;
