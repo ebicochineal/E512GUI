@@ -23,20 +23,16 @@ public class EbiColor : MonoBehaviour {
             for (int i = 0; i < this.transform.childCount; i++) {
                 ls.Add(this.transform.GetChild(i).GetComponent<E512GUI>());
             }
-            
-            int x = ls[cnt % ls.Count].image.tx;
-            print(x);
-            cnt += 1;
-            if (x == 7) { this.pgui.window.color =  new Color32(200, 43, 85, 255); }
-            if (x == 8) { this.pgui.window.color =  new Color32(239, 131, 0, 255); }
-            if (x == 9) { this.pgui.window.color =  new Color32(0, 117, 198, 255); }
-            if (x == 10) { this.pgui.window.color = new Color32(167, 189, 0, 255); }
-            if (x == 11) { this.pgui.window.color = new Color32(255, 255, 255, 255); }
-            
-            
+            if (ls.Count > 0) {
+                int x = ls[cnt % ls.Count].image.tx;
+                cnt += 1;
+                if (x == 7) { this.pgui.window.color =  new Color32(200, 43, 85, 255); }
+                if (x == 8) { this.pgui.window.color =  new Color32(239, 131, 0, 255); }
+                if (x == 9) { this.pgui.window.color =  new Color32(0, 117, 198, 255); }
+                if (x == 10) { this.pgui.window.color = new Color32(167, 189, 0, 255); }
+                if (x == 11) { this.pgui.window.color = new Color32(255, 255, 255, 255); }
+            }
             
         }
-        
-        
     }
 }
