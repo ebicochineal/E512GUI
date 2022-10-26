@@ -20,8 +20,6 @@ public class DragDrop : MonoBehaviour {
     }
     public void DragStart () {
         if (this.root == null) { return; }
-        E512GUI hit = this.root.HitGUI(this.gui);
-        
         this.gui.AbsolutePosition();
         this.ev.tmpx = this.gui.apx;
         this.ev.tmpy = this.gui.apy;

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class EbiColor : MonoBehaviour {
     int cnt = 0;
-    E512GUI gui;
+    // E512GUI gui;
     E512GUI pgui;
     float timer = 0;
     // Use this for initialization
     void Start () {
-        this.gui = this.GetComponent<E512GUI>();
+        // this.gui = this.GetComponent<E512GUI>();
         this.pgui = this.transform.parent.GetComponent<E512GUI>();
     }
     

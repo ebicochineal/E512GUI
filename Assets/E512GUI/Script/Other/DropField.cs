@@ -25,7 +25,7 @@ public class DropField : MonoBehaviour {
         int py = 0;
         
         int w = this.gui.window.width - this.gui.margin * 2;
-        int h = this.gui.window.height - this.gui.margin * 2;
+        // int h = this.gui.window.height - this.gui.margin * 2;
         int ph = 0;
         foreach (var i in l) {
             ph = Mathf.Max(i.window.height, ph);

@@ -47,7 +47,60 @@ public class E512GUI : MonoBehaviour {
     private int wui = 0;
     private int wdi = 0;
     
+    private int gid = -1;
+    
+    private Shader defaultshader;
+    private Texture defaultfont;
+    
+    
+    public void Setup () {
+        if (this.defaultshader == null) { this.defaultshader = Resources.Load<Shader>("Shader/E512GUIUnlitTextureColor"); }
+        if (this.defaultfont== null) { this.defaultfont = Resources.Load<Texture>("Texture/e512font12x6"); }
+        
+        this.SetShader(ref this.window.shader);
+        this.SetShader(ref this.image.shader);
+        this.SetShader(ref this.text.shader);
+        this.SetFont(ref this.text.texture);
+        
+        if (this.GetInstanceID() != this.gid) {
+            this.gid = this.GetInstanceID();
+            this.SetMaterial(ref this.window.material, ref this.window.shader);
+            this.SetMaterial(ref this.image.material, ref this.image.shader);
+            this.SetMaterial(ref this.text.material, ref this.text.shader);
+        }
+        this.SetMaterialACC(ref this.window.material, ref this.window.shader, ref this.window.texture);
+        this.SetMaterialACC(ref this.image.material, ref this.image.shader, ref this.image.texture);
+        this.SetMaterialACC(ref this.text.material, ref this.text.shader, ref this.text.texture);
+    }
+    public void SetShader (ref Shader shader) {
+        if (shader == null) { shader = this.defaultshader; }
+    }
+    public void SetFont (ref Texture texture) {
+        if (texture == null) { texture = this.defaultfont; }
+    }
+    public void SetMaterial (ref Material material, ref Shader shader) {
+        material = new Material(shader);
+    }
+    public void SetMaterialACC (ref Material material, ref Shader shader, ref Texture texture) {
+        if (material.shader != shader) {material.shader = shader; }
+        if (material.mainTexture != texture) { material.mainTexture = texture; }
+    }
+    public void SetMaterialValue (ref Material material, Color color, int l, int u, int r, int d, int sw, int sh, float mx, float my) {
+        material.SetColor("_Color", color);
+        material.SetFloat("_Alpha", this.alpha);
+        material.SetFloat("_WL", (float)l / sw);
+        material.SetFloat("_WU", (float)u / sh);
+        material.SetFloat("_WR", (float)r / sw);
+        material.SetFloat("_WD", (float)d / sh);
+        material.SetInt("_Clip", this.clip > 0 ? 1 : 0);
+        material.SetFloat("_MX", mx);
+        material.SetFloat("_MY", my);
+    }
+    
     public void DrawUI (int sw, int sh, float mx, float my) {
+        this.Setup();
+        
+        
         this.AbsolutePosition();
         int px = this.apx;
         int py = this.apy;
@@ -84,9 +137,8 @@ public class E512GUI : MonoBehaviour {
             }
         }
         
-        
         this.DrawWindow(px, py, sw, sh, mx, my);
-            
+        
         px += this.margin;
         py += this.margin;
         
@@ -96,7 +148,6 @@ public class E512GUI : MonoBehaviour {
         
         for (int i = 0; i < this.transform.childCount; ++i) {
             Transform t = this.transform.GetChild(i);
-            if (t == null) { continue; }
             E512GUI u = t.GetComponent<E512GUI>();
             if (u != null && !u.hide) { u.DrawUI(sw, sh, mx, my); }
         }
@@ -145,7 +196,6 @@ public class E512GUI : MonoBehaviour {
         if (this.collision && m.x >= this.wlo && m.x < this.wro && m.y >= this.wuo && m.y < this.wdo) { hitui = this; }
         for (int i = 0; i < this.transform.childCount; ++i) {
             Transform t = this.transform.GetChild(i);
-            if (t == null) { continue; }
             E512GUI u = t.GetComponent<E512GUI>();
             if (u != null && !u.hide) { u.Test(m, ref hitui); }
         }
@@ -194,7 +244,6 @@ public class E512GUI : MonoBehaviour {
         if (this != ignore && this.collision && m.x >= this.wlo && m.x < this.wro && m.y >= this.wuo && m.y < this.wdo) { hitui = this; }
         for (int i = 0; i < this.transform.childCount; ++i) {
             Transform t = this.transform.GetChild(i);
-            if (t == null) { continue; }
             E512GUI u = t.GetComponent<E512GUI>();
             if (u != null && !u.hide) { u.Test(m, ignore, ref hitui); }
         }
@@ -240,8 +289,6 @@ public class E512GUI : MonoBehaviour {
         px += this.margin;
         py += this.margin;
         
-        this.image.Setup(this.GetInstanceID(), this.alpha, this.wli, this.wui, this.wri, this.wdi, this.clip > 0 ? 1 : 0, sw, sh, mx, my);
-        
         if (this.clip > 0) {
             if (mx >= this.wli && mx < this.wri && my >= this.wui && my < this.wdi) {
                 uv.x = mx - px;
@@ -267,7 +314,8 @@ public class E512GUI : MonoBehaviour {
     
     
     public void DrawText (int px, int py, int sw, int sh, float mx, float my) {
-        this.text.Setup(this.GetInstanceID(), this.alpha, this.wli, this.wui, this.wri, this.wdi, this.clip > 0 ? 1 : 0, sw, sh, mx, my);
+        if (this.text.value.Length == 0) { return; }
+        this.SetMaterialValue(ref this.text.material, this.text.color, this.wli, this.wui, this.wri, this.wdi, sw, sh, mx, my);
         
         GL.PushMatrix();
         GL.LoadOrtho();
@@ -308,7 +356,7 @@ public class E512GUI : MonoBehaviour {
     
     public void DrawImage (int px, int py, int sw, int sh, float mx, float my) {
         if (this.image.texture == null) { return; }
-        this.image.Setup(this.GetInstanceID(), this.alpha, this.wli, this.wui, this.wri, this.wdi, this.clip > 0 ? 1 : 0, sw, sh, mx, my);
+        this.SetMaterialValue(ref this.image.material, this.image.color, this.wli, this.wui, this.wri, this.wdi, sw, sh, mx, my);
         
         GL.PushMatrix();
         GL.LoadOrtho();
@@ -323,7 +371,7 @@ public class E512GUI : MonoBehaviour {
     
     public void DrawWindow (int px, int py, int sw, int sh, float mx, float my) {
         if (this.window.texture == null) { return; }
-        this.window.Setup(this.GetInstanceID(), this.alpha, this.wlo, this.wuo, this.wro, this.wdo, this.clip > 0 ? 1 : 0, sw, sh, mx, my);
+        this.SetMaterialValue(ref this.window.material, this.window.color, this.wlo, this.wuo, this.wro, this.wdo, sw, sh, mx, my);
         
         GL.PushMatrix();
         GL.LoadOrtho();
@@ -466,15 +514,31 @@ public class E512GUI : MonoBehaviour {
     }
     
     void OnValidate () {
-        this.window.UpdateTexture(this.GetInstanceID());
-        this.image.UpdateTexture(this.GetInstanceID());
-        this.text.UpdateTexture(this.GetInstanceID());
+        this.ChangedTexture();
     }
     
-    public void UpdateTexture () {
-        this.window.UpdateTexture(this.GetInstanceID());
-        this.image.UpdateTexture(this.GetInstanceID());
-        this.text.UpdateTexture(this.GetInstanceID());
+    public void ChangedTexture () {
+        this.UpdateImage();
+        this.UpdateText();
+    }
+    
+    public void UpdateImage () {
+        if (this.image.texture == null) { return; }
+        this.image.split_horizontal = Mathf.Max(this.image.split_horizontal, 1);
+        this.image.split_vertical = Mathf.Max(this.image.split_vertical, 1);
+        this.image.width = this.image.texture.width / this.image.split_horizontal * this.image.scale;
+        this.image.height = this.image.texture.height / this.image.split_vertical * this.image.scale;
+        
+        this.image.dx = 1f / this.image.split_horizontal;
+        this.image.dy = 1f / this.image.split_vertical;
+        this.image.tx = Mathf.Max(this.image.tx % this.image.split_horizontal, 0);
+        this.image.ty = Mathf.Max(this.image.ty % this.image.split_vertical, 0);
+    }
+    
+    public void UpdateText () {
+        if (this.text.texture == null) { return; }
+        this.text.fontheight = this.text.texture.height / 16 * this.text.scale;
+        this.text.fontwidth = this.text.texture.width / 16 * this.text.scale;
     }
     
     public void ModifyToParentClipArea () {

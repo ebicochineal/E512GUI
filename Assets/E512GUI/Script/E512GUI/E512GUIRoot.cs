@@ -64,7 +64,6 @@ public class E512GUIRoot : MonoBehaviour {
         if (m.z > -1) {
             for (int i = 0; i < this.transform.childCount; ++i) {
                 Transform t = this.transform.GetChild(i);
-                if (t == null) { continue; }
                 E512GUI u = t.GetComponent<E512GUI>();
                 if (u != null && !u.hide) { u.Test(m, ref hitui); }
             }
@@ -82,7 +81,6 @@ public class E512GUIRoot : MonoBehaviour {
         if (m.z > -1) {
             for (int i = 0; i < this.transform.childCount; ++i) {
                 Transform t = this.transform.GetChild(i);
-                if (t == null) { continue; }
                 E512GUI u = t.GetComponent<E512GUI>();
                 if (u != null && !u.hide) { u.Test(m, ignore, ref hitui); }
             }
@@ -107,7 +105,6 @@ public class E512GUIRoot : MonoBehaviour {
         
         for (int i = 0; i < this.transform.childCount; ++i) {
             Transform t = this.transform.GetChild(i);
-            if (t == null) { continue; }
             E512GUI u = t.GetComponent<E512GUI>();
             if (u != null && !u.hide) { u.DrawUI(sw, sh, m.x, m.y); }
         }

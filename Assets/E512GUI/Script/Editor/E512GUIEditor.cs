@@ -37,7 +37,7 @@ public class E512GUIEditor : Editor {
                     float uh = u.window.height - u.margin * 2;
                     float h = u.image.texture.height / Mathf.Max(u.image.split_vertical, 1);
                     u.image.scale = uh / h;
-                    u.UpdateTexture();
+                    u.ChangedTexture();
                 }
             }
             if (GUILayout.Button("Image To Window Size W")) {
@@ -46,7 +46,7 @@ public class E512GUIEditor : Editor {
                     float uw = u.window.width - u.margin * 2;
                     float w = u.image.texture.width / Mathf.Max(u.image.split_horizontal, 1);;
                     u.image.scale = uw / w;
-                    u.UpdateTexture();
+                    u.ChangedTexture();
                 }
             }
         }
